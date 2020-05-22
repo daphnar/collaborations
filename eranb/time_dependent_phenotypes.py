@@ -37,7 +37,8 @@ def run_time_dependence(output_file):
             pvals_times.append(pvals_time)
             pvals_genotypes.append(pvals_genotype)
             pvals_timeMgenotypes.append(pvals_timeMgenotype)
-            plot_fit_ols(coefs,model_data,phenotype)
+            if pvals_timeMgenotype<0.05:
+                plot_fit_ols(coefs,model_data,phenotype,pvals_timeMgenotype)
     qvals_times=multipletests(pvals_times,method='fdr_bh')[1]
     qvals_genotypes=multipletests(pvals_genotypes,method='fdr_bh')[1]
     qvals_timeMgenotypes=multipletests(pvals_timeMgenotypes,method='fdr_bh')[1]
@@ -51,7 +52,8 @@ def run_time_dependence(output_file):
 
     res.sort_values(by='Q-value time*genotype').to_csv(output_file)
 
-def plot_fit_ols(coefs,data,phenotype):
+def plot_fit_ols(coefs,data,phenotype,pval):
+    plt.figure()
     data['yfitted'] = data['genotype'].mul(coefs['genotype']).add(
         data['time'].mul(coefs['time'])).add( \
         data['timeMgenotype'].mul(coefs['timeMgenotype']))
@@ -63,11 +65,12 @@ def plot_fit_ols(coefs,data,phenotype):
              data[(data['genotype'] == 1)]['yfitted'], 'g')
     plt.scatter(data[(data['genotype'] == 1)]['time'], \
                 data[(data['genotype'] == 1)]['phenotype'], c='g', alpha=0.25, s=50)
+    plt.legend(['WT','KO'])
     plt.xlabel('Time')
     plt.ylabel('Phenotype')
     plt.title(phenotype)
-    plt.show()
-
+    plt.savefig(os.path.join(config.time_dependence_plots,phenotype.replace("/","$")+'pval_%.3f.pdf'%pval),format='pdf')
+    plt.close()
 
 if __name__=='__main__':
     output_file=os.path.join(config.analyses_path,'time_dependent_analysis.csv')

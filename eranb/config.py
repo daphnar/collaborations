@@ -13,3 +13,4 @@ blood_tests = globals().get('blood_tests',["G-CSF/CSF-3","IL-10","IL-3","LIF","I
                "BAFF/TNFSF13B","MIP-1b/CCL4","BTC","IL-7","IL-33","IL-31","ST2/IL-33R","CHEX-1","CHEX-2","CHEX-3","CHEX-4"])
 time_behavioral = globals().get('time_behavioral','Age at behavioral tests (months)')
 time_blood = globals().get('time_blood','Age at organ collection (months)')
+time_dependence_plots =globals().get('time_dependence_plots',os.path.join(analyses_path,'time_dependence_plots'))
