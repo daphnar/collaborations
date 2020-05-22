@@ -93,12 +93,11 @@ def plot_PCA(X,Y=None, name="", impute = None,plot=True,format='pdf',method = 'm
 
 
 
-def getPhenotypes():
+def getPhenotypes(input_sheetname=None):
     xls = xlrd.open_workbook(config.phenotypes_df, on_demand=True)
     sheets = xls.sheet_names()
     for sheetname in sheets:
         pheno_df = pd.read_excel(config.phenotypes_df, sheet_name=sheetname).set_index('Animal ID')
-    #pheno_df = pd.read_excel(config.phenotypes_df).set_index('Animal ID')
         for category ,pair in config.boolean_types.items():
             for key,value in pair.items():
                 pheno_df.loc[pheno_df[category]==key,category] = value
