@@ -113,7 +113,6 @@ def corrlatePhenotypesWithDisease(X,Y):
             Y_True = subset_Y.values.astype(bool)
             Y_False = subset_Y.values * -1 + 1
             Y_False = Y_False.astype(bool)
-            #statistic, pvalue = mannwhitneyu(subset_phenotype_x.values,Y.loc[subset_phenotype_x.index].values) - WRONG
             statistic, pvalue = mannwhitneyu(subset_phenotype_x.loc[Y_True].values,subset_phenotype_x.loc[Y_False].values)
             statistics.append(statistic)
             pvalues.append(pvalue)
