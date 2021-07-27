@@ -70,6 +70,7 @@ def plot_fit_ols(coefs,data,phenotype,pval):
     plt.ylabel('Phenotype')
     plt.title(phenotype)
     plt.savefig(os.path.join(config.time_dependence_plots,phenotype.replace("/","$")+'pval_%.3f.pdf'%pval),format='pdf')
+    data.to_csv(os.path.join(config.time_dependence_plots,phenotype.replace("/","$")+'pval_%.3f.csv'%pval))
     plt.close()
 
 if __name__=='__main__':

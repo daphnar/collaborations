@@ -72,17 +72,18 @@ def plot_PCA(X,Y=None, name="", impute = None,plot=True,format='pdf',method = 'm
                         pvalue_non_corrected=get_pca_pvalue_from_SVC(df_PCs[pc_1].values, df_PCs[pc_2].values, Y.values.astype(int))
                     plt.ylim(y_limits)
                     pvals.append([pc_1+1,pc_2+1,pvalue_non_corrected])
+                    plt.title('P-value %s' % pvalue_non_corrected)
 
                 else:
                     plt.scatter(df_PCs[pc_1].values, df_PCs[pc_2].values, marker='.', c='b', s=40,alpha=0.6)
                 plt.xlabel('PC%s %.2f'%(pc_1+1,all_pcoa_explained_var[pc_1]),fontsize=14)
                 plt.ylabel('PC%s %.2f'%(pc_2+1,all_pcoa_explained_var[pc_2]),fontsize=14)
-                plt.title('P-value %s'%pvalue_non_corrected)
                 figname='PCA_%s_%s__%s_%s.%s'%(pc_1+1,pc_2+1,name,method,format)
                 plt.subplots_adjust(left=0.2)
-                plt.savefig(os.path.join(config.analyses_path, figname), format=format)
+                plt.show()
+                #plt.savefig(os.path.join(config.analyses_path, figname), format=format)
                 plt.close()
-        #plt.show()
+        plt.show()
         if plot:
             results = pd.DataFrame(pvals)
             results.columns = ['PC1','PC2','pvalue']
