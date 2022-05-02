@@ -8,6 +8,8 @@ from scipy.stats import spearmanr
 from scipy.spatial.distance import squareform, pdist
 import scipy.linalg as la
 import warnings
+
+from skbio.stats.ordination import pcoa
 def e_matrix(distance_matrix):
     """Compute E matrix from a distance matrix.
     Squares and divides by -2 the input elementwise. Eq. 9.20 in
@@ -61,7 +63,7 @@ def BrayCurtis(X_orig, is_log_abundance=True, zero_min_value=True):
     D = squareform(pdist(X, metric='braycurtis'))
     return D
 
-def plot(source1=None,source2=None,indexName='uniting_key',
+def plot(source1=None,source2=None,indexName='index',
          threshold=1e-4,legend=None,figurename=None,
          method='PCoA',excelName=None,data=None,groups=None):
     if (source1 is not None) and (source2 is not None) and (data is None):
