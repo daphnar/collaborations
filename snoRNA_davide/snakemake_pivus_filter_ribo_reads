@@ -20,8 +20,8 @@ output_filter_dir = os.path.join(SCRATCH_BASE,'daphna/snoRNA/%s_snoRNA_data'%dat
 
 rule all:
     input:
-        #expand(os.path.join(output_filter_dir,"{sample_id}"),sample_id = sample_ids), #For PIVUS
-         expand(os.path.join(output_filter_dir,"{sample_id}.fastq.gz"),sample_id = sample_ids)#For DGN
+        expand(os.path.join(output_filter_dir,"{sample_id}"),sample_id = sample_ids), #For PIVUS
+        #expand(os.path.join(output_filter_dir,"{sample_id}.fastq.gz"),sample_id = sample_ids)#For DGN
 
 rule run:
     params:
