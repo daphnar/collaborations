@@ -1,0 +1,44 @@
+import os,glob
+import pandas as pd
+
+SCRATCH_BASE='/scratch/groups/pritch'
+OAK_BASE='/oak/stanford/groups/pritch'
+
+#For pivus
+dataset_name = 'pivus'
+input_data_dir='/oak/stanford/groups/smontgom/shared/PIVUS/Data/FASTQ/'
+all_input_files = glob.glob(os.path.join(input_data_dir,'*.fastq.gz'))
+sample_ids = [os.path.basename(filename) for filename in all_input_files]
+
+#########################################################################################################
+#For dgn
+#dataset_name = 'dgn'
+#all_input_files = pd.read_csv('/oak/stanford/groups/smontgom/shared/dgn/metadata_fastq.txt',index_col=0,sep='\t',header=None)
+#sample_ids = all_input_files.index
+#########################################################################################################
+output_filter_dir = os.path.join(SCRATCH_BASE,'daphna/snoRNA/%s_snoRNA_data%s'%dataset_name)
+
+rule all:
+    input:
+        #expand(os.path.join(output_filter_dir,"{sample_id}"),sample_id = sample_ids), #For PIVUS
+         expand(os.path.join(output_filter_dir,"{sample_id}.fastq.gz"),sample_id = sample_ids)#For DGN
+
+rule run:
+    params:
+        account = 'default',
+        partition = 'pritch,owners',
+        run_time = '10:00:00',
+        job_name = 'pivus',
+        memory = '50G',
+        cores = '2',
+        input_file = os.path.join(input_data_dir,"{sample_id}"), #For PIVUS
+        #input_file = "{sample_id}", #For DGN
+        dataset = dataset_name,
+        index_path='/oak/stanford/groups/pritch/users/daphna/snoRNA/bowtie2-index/bowtie2-index'
+        #metadata_file = '/oak/stanford/groups/smontgom/shared/dgn/metadata_fastq.txt' #For DGN - REMOVE FOR PIVUS
+        metadata_file = 'None'
+    output:
+        os.path.join(output_filter_dir,"{sample_id}") #For PIVUS
+        #os.path.join(output_filter_dir,"{sample_id}.fastq.gz")#For DGN
+    shell:
+        '/home/users/daphna/p3/bin/python process_pivus_dgn.py {params.input_file} {params.dataset} {params.metadata_file} True {params.index_path}'
