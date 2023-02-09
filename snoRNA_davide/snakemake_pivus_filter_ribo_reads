@@ -34,7 +34,7 @@ rule run:
         input_file = os.path.join(input_data_dir,"{sample_id}"), #For PIVUS
         #input_file = "{sample_id}", #For DGN
         dataset = dataset_name,
-        index_path='/oak/stanford/groups/pritch/users/daphna/snoRNA/bowtie2-index/bowtie2-index'
+        index_path='/oak/stanford/groups/pritch/users/daphna/snoRNA/bowtie2-index/bowtie2-index',
         #metadata_file = '/oak/stanford/groups/smontgom/shared/dgn/metadata_fastq.txt' #For DGN - REMOVE FOR PIVUS
         metadata_file = 'None'
     output:
