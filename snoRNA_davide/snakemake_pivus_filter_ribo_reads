@@ -16,7 +16,7 @@ sample_ids = [os.path.basename(filename) for filename in all_input_files]
 #all_input_files = pd.read_csv('/oak/stanford/groups/smontgom/shared/dgn/metadata_fastq.txt',index_col=0,sep='\t',header=None)
 #sample_ids = all_input_files.index
 #########################################################################################################
-output_filter_dir = os.path.join(SCRATCH_BASE,'rdna/analyses/ribo_filter/%s'%dataset_name)
+output_filter_dir = os.path.join(SCRATCH_BASE,'daphna/rdna/analyses/ribo_filter/%s'%dataset_name)
 
 rule all:
     input:
