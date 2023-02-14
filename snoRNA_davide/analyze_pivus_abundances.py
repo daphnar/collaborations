@@ -5,6 +5,9 @@ from skbio.stats.ordination import pcoa
 import os
 import seaborn as sns
 
+remote=False
+local = not remote
+
 def plot_PCoA(X,legend=None,n_pcs=5,plot_pc=None,ax=None,color_groups=None,s_special=1,titlename=None,
               plot_background=True,arrow=False,arrow_mapping=None,up_down_dict=None,plot_y=True,
               debug=False,output_pcos=None,output_pcos_proportion=None,X_is_pcos=False,color_set=None):
@@ -95,8 +98,31 @@ def add_pivus_annotations(ra_df,annotation_table):
     ra_copy=ra_copy.sort_values('age',ascending=True)
     return ra_copy
 
+if remote:
+    phenotypes_kallisto = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/PIVUS_MapGlobalID_RNAseqMetadata_merge_SeqSuccessOnly.txt'
+    ra_df_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_clean_abundances.csv'
+    annotated_ra_path='/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_clean_abundances_with_age.csv'
+    ra_df = add_pivus_annotations(ra_df_path,phenotypes_kallisto)
+    ra_df.to_csv(annotated_ra_path)
 
-phenotypes_kallisto = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/PIVUS_MapGlobalID_RNAseqMetadata_merge_SeqSuccessOnly.txt'
-ra_df_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_clean_abundances.csv'
+if local:
+    annotated_ra_with_age_path='/Users/daphna/cluster2/users/daphna/snoRNA/pivus_clean_abundances_with_age.csv'
+    annotated_ra_path='/Users/daphna/cluster2/users/daphna/snoRNA/pivus_abundances.csv'
+    annotated_ra = pd.read_csv(annotated_ra_path,index_col=0)
+    annotated_ra=annotated_ra.loc[:, annotated_ra.std() > 0.04]
+    annotated_ra_with_age = pd.read_csv(annotated_ra_with_age_path,index_col=0)
+    print(annotated_ra)
+    print(annotated_ra.shape)
+    age_groups = annotated_ra_with_age['age']
+    #distmat = pd.DataFrame(squareform(pdist(annotated_ra.drop('age', 1), 'braycurtis'))).values
+    distmat = pd.DataFrame(squareform(pdist(annotated_ra, 'braycurtis'))).values
 
-ra_df = add_pivus_annotations(ra_df_path,phenotypes_kallisto)
+    distmat_df = pd.DataFrame(index =annotated_ra.index,
+                           columns = annotated_ra.index,
+                           data=distmat)
+    color_groups = [age_groups[age_groups==70].index.values,
+                    age_groups[age_groups == 80].index.values]
+    plot_PCoA(distmat_df,legend=['70','80'],
+              color_groups=color_groups,debug=True,s_special=20)
+    plt.show()
+
