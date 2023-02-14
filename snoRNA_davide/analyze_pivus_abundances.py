@@ -1,9 +1,11 @@
 import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 import matplotlib.pyplot as plt
+from scipy.stats import ranksums, ttest_rel
 from skbio.stats.ordination import pcoa
 import os
 import seaborn as sns
+from statsmodels.stats.multitest import fdrcorrection
 
 remote=False
 local = not remote
@@ -112,6 +114,10 @@ if local:
     annotated_ra_with_age = pd.read_csv(annotated_ra_with_age_path,index_col=0)
     print(annotated_ra)
     print(annotated_ra.shape)
+
+    min_abundance = 20 / 1500
+    annotated_ra[annotated_ra < min_abundance] = min_abundance
+    annotated_ra=annotated_ra.loc[:,annotated_ra.std()>0.01]
     age_groups = annotated_ra_with_age['age']
     #distmat = pd.DataFrame(squareform(pdist(annotated_ra.drop('age', 1), 'braycurtis'))).values
     distmat = pd.DataFrame(squareform(pdist(annotated_ra, 'braycurtis'))).values
@@ -123,5 +129,21 @@ if local:
                     age_groups[age_groups == 80].index.values]
     plot_PCoA(distmat_df,legend=['70','80'],
               color_groups=color_groups,debug=True,s_special=20)
+    print(annotated_ra)
+    res_pval = {}
+    print(annotated_ra.shape)
+    for snoRNA in annotated_ra.columns:
+        statistic, pval = ttest_rel(annotated_ra.loc[age_groups[age_groups==70].index.values, snoRNA],
+                                    annotated_ra.loc[age_groups[age_groups == 80].index.values, snoRNA])
+        #pval = ranksums(annotated_ra.loc[age_groups[age_groups==70].index.values, snoRNA],
+        #                annotated_ra.loc[age_groups[age_groups == 80].index.values, snoRNA])[1]
+        res_pval[snoRNA]=[pval,1,annotated_ra.loc[age_groups[age_groups==70].index.values, snoRNA].median(),
+                          annotated_ra.loc[age_groups[age_groups==80].index.values, snoRNA].median()]
+    res_pval_df = pd.DataFrame(index = ['p-value','q-value','70 median RA','80 median RA'],data=res_pval).T
+    res_pval_df['q-value']=fdrcorrection(res_pval_df['p-value'])[1]
+    res_pval_df=res_pval_df.sort_values('q-value')
+    print(res_pval_df)
+    print(res_pval_df[res_pval_df['p-value']<0.05])
+    print(res_pval_df[res_pval_df['p-value'] < 0.05].shape)
     plt.show()
 
