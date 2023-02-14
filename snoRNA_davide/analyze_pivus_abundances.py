@@ -1,0 +1,102 @@
+import pandas as pd
+from scipy.spatial.distance import pdist, squareform
+import matplotlib.pyplot as plt
+from skbio.stats.ordination import pcoa
+import os
+import seaborn as sns
+
+def plot_PCoA(X,legend=None,n_pcs=5,plot_pc=None,ax=None,color_groups=None,s_special=1,titlename=None,
+              plot_background=True,arrow=False,arrow_mapping=None,up_down_dict=None,plot_y=True,
+              debug=False,output_pcos=None,output_pcos_proportion=None,X_is_pcos=False,color_set=None):
+    if output_pcos is not None:
+        if not os.path.exists(output_pcos):
+            pcs = pcoa(X)
+            df_PCs = pcs.samples
+            df_PCs.index = X.index
+            df_PCs.to_csv(output_pcos)
+            all_pcoa_explained_var = pcs.proportion_explained
+            pd.Series(all_pcoa_explained_var).to_csv(output_pcos_proportion,index=False)
+        else:
+            if X_is_pcos:
+                df_PCs=X
+                all_pcoa_explained_var = pd.read_csv(output_pcos_proportion, index_col=0).index
+            else:
+                df_PCs=pd.read_csv(output_pcos,index_col=0)
+                all_pcoa_explained_var=pd.read_csv(output_pcos_proportion,index_col=0).index
+    else:
+        pcs = pcoa(X)
+        df_PCs = pcs.samples
+        df_PCs.index = X.index
+        all_pcoa_explained_var = pcs.proportion_explained
+    initial=df_PCs.columns.values[0]
+    if not str(initial).startswith('PC'):
+        df_PCs.columns=df_PCs.columns.map(lambda x: 'PC%s'%(int(x)+1))
+    for pc_1 in range(n_pcs):
+        for pc_2 in range(pc_1, n_pcs):
+            if not debug:
+                if (pc_1, pc_2) != plot_pc:
+                    continue
+                plt.sca(ax)
+            else:
+                if pc_1!= pc_2:
+                    plt.figure()
+                else:
+                    continue
+            if plot_background:
+                plt.scatter(df_PCs['PC%s'%(pc_1+1)].values, df_PCs['PC%s'%(pc_2+1)].values, marker='.', c='gray', s=s_special, alpha=0.6)
+            for i, group in enumerate(color_groups):
+                if color_set is None:
+                    plt.scatter(df_PCs.loc[group, 'PC%s'%(pc_1+1)].values, df_PCs.loc[group, 'PC%s'%(pc_2+1)].values, marker='.'
+                                , s=s_special, alpha=0.6)
+                else:
+                    plt.scatter(df_PCs.loc[group, 'PC%s' % (pc_1 + 1)].values,
+                                df_PCs.loc[group, 'PC%s' % (pc_2 + 1)].values, marker='.'
+                                , s=s_special, alpha=0.6,color=color_set[i])
+            plt.xlabel('PC%s %.2f' % (pc_1 + 1, all_pcoa_explained_var[pc_1]))
+            if plot_y:
+                plt.ylabel('PC%s %.2f' % (pc_2 + 1, all_pcoa_explained_var[pc_2]))
+            else:
+                plt.gca().axes.yaxis.set_visible(False)
+            #ax.yaxis.labelpad = -1
+            #ax.set_ylabel('PC%s %.2f' % (pc_2 + 1, all_pcoa_explained_var[pc_2]),labelpad=0)
+            if legend is not None:
+                plt.legend(legend,loc='lower right')
+            # if arrow:
+            #     count=0
+            #     for age70 in arrow_mapping.index:
+            #         age80 = arrow_mapping.loc[age70]
+            #         if up_down_dict[age70]=='g':
+            #             lines = sns.lineplot(y=[df_PCs.loc[age70,'PC%s'%(pc_2+1)], df_PCs.loc[age80,'PC%s'%(pc_2+1)]],
+            #                              x=[df_PCs.loc[age70,'PC%s'%(pc_1+1)], df_PCs.loc[age80,'PC%s'%(pc_1+1)]], ax=ax, color='gray',
+            #                              linewidth=0.5, alpha=0.5).get_lines()
+            #             plt.scatter(y=[df_PCs.loc[age70, pc_2], df_PCs.loc[age80, pc_2]],
+            #                                  x=[df_PCs.loc[age70, pc_1], df_PCs.loc[age80, pc_1]],
+            #                                  color='white')
+            #         # try:
+            #         #     add_arrow(lines[-1], color=up_down_dict[age70], size=4) #'r'
+            #         # except IndexError:
+            #         #     add_arrow(lines[-1], color=up_down_dict[age70], size=4,direction='left') #'g'
+            #             count+=1
+            #     print(count)
+            plt.title(titlename)
+
+
+def add_pivus_annotations(ra_df,annotation_table):
+    ra = pd.read_csv(ra_df, index_col=0)
+    ra_copy = ra.copy()
+    annotation_table_df = pd.read_csv(annotation_table, index_col=0,sep='\t')[['RNAseqID70','RNAseqID80']]
+    age_dic = {}
+    for column in annotation_table_df.columns:
+        for sample_id in annotation_table_df[column]:
+            age_dic[sample_id]=column[-2:]
+    annotation_table_df=pd.Series(age_dic)
+    ra_copy=ra_copy.loc[annotation_table_df.index[annotation_table_df.index.isin(ra_copy.index)]]
+    ra_copy['age'] = ra_copy.index.map(lambda x: annotation_table_df[x])
+    ra_copy=ra_copy.sort_values('age',ascending=True)
+    return ra_copy
+
+
+phenotypes_kallisto = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/PIVUS_MapGlobalID_RNAseqMetadata_merge_SeqSuccessOnly.txt'
+ra_df_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_clean_abundances.csv'
+
+ra_df = add_pivus_annotations(ra_df_path,phenotypes_kallisto)
