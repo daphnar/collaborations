@@ -65,3 +65,11 @@ if __name__=='__main__':
             rarefaction(finput, foutput, keep_n=750, throw_below=0)
             trim_reads_to_equi_length(foutput,foutput,readlen=readlen)
         chunk_count+=unit_pivus_paired_end(fin,outdir_p, outdir_u)
+
+    #Run kallisto:
+    kallisto_index = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/kallisto'
+    kallisto_tool = '/oak/stanford/groups/pritch/users/daphna/tools/kallisto/kallisto'
+    sample_data_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/pivus_snoRNA_data_by_sample_readlen48_rarefaction750'
+    kallisto_output_folder = kallisto_index
+    command = '%s quant -i %s -o %s --single -l 75 -s 0.01 %s'%(kallisto_tool,kallisto_index,
+                        os.path.join(kallisto_output_folder,sample), os.path.join(sample_data_path,sample))
