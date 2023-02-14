@@ -109,7 +109,6 @@ if local:
     annotated_ra_with_age_path='/Users/daphna/cluster2/users/daphna/snoRNA/pivus_clean_abundances_with_age.csv'
     annotated_ra_path='/Users/daphna/cluster2/users/daphna/snoRNA/pivus_abundances.csv'
     annotated_ra = pd.read_csv(annotated_ra_path,index_col=0)
-    annotated_ra=annotated_ra.loc[:, annotated_ra.std() > 0.04]
     annotated_ra_with_age = pd.read_csv(annotated_ra_with_age_path,index_col=0)
     print(annotated_ra)
     print(annotated_ra.shape)
