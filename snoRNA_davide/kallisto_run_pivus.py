@@ -15,6 +15,14 @@ def unite_kallisto_abundances(input_folder_re,output_ra):
         results.append(ra)
     pd.concat(results,axis=1).T.to_csv(output_ra)
 
+def clean_abundances(input_abundances,output_abundances,min_count=20,sequencing_depth=750):
+    obj = pd.read_csv(input_abundances, index_col=0)
+    min_abundance=min_count / sequencing_depth
+    obj[obj < min_abundance] = min_abundance
+    #Throw columns with little information
+    obj = obj.loc[:, obj.std() > 0.0001]
+    obj.to_csv(output_abundances)
+
 kallisto_index = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/kallisto/snoRNA'
 kallisto_tool = '/oak/stanford/groups/pritch/users/daphna/tools/kallisto/kallisto'
 sample_data_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/pivus_snoRNA_data_by_sample_readlen48_rarefaction750'
@@ -31,4 +39,6 @@ for sample in files.index:
 input_folder_re = os.path.join(kallisto_output_folder,'PIVUS*')
 output_ra = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_abundances.csv'
 unite_kallisto_abundances(input_folder_re,output_ra)
+output_norm = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_clean_abundances.csv'
+clean_abundances(output_ra,output_norm)
 
