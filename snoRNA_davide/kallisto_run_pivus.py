@@ -17,10 +17,10 @@ def unite_kallisto_abundances(input_folder_re,output_ra):
 
 kallisto_index = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/kallisto/snoRNA'
 kallisto_tool = '/oak/stanford/groups/pritch/users/daphna/tools/kallisto/kallisto'
-sample_data_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/pivus_snoRNA_data_by_sample_readlen48_rarefaction750'
-kallisto_output_folder = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/kallisto/'
+sample_data_path = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/pivus_snoRNA_data_by_sample_readlen48_rarefaction750'
+kallisto_output_folder = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/kallisto/'
 
-chunks_file = '/oak/stanford/groups/pritch/users/daphna/snoRNA/samples.csv'
+chunks_file = '/oak/stanford/groups/pritch/users/daphna/snoRNA/data/pivus/samples.csv'
 files = pd.read_csv(chunks_file, index_col=0)
 for sample in files.index:
     sample_file=sample+'.fastq.gz'
@@ -29,6 +29,6 @@ for sample in files.index:
     os.system(command)
 
 input_folder_re = os.path.join(kallisto_output_folder,'PIVUS*')
-output_ra = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus_abundances.csv'
+output_ra = '/oak/stanford/groups/pritch/users/daphna/snoRNA/analyses/pivus/pivus_abundances.csv'
 unite_kallisto_abundances(input_folder_re,output_ra)
 
