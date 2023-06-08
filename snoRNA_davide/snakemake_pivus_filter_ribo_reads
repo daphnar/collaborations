@@ -37,9 +37,9 @@ rule run:
     params:
         account = 'default',
         partition = 'pritch,owners',
-        run_time = '10:00:00',
-        job_name = 'pivus',
-        memory = '50G',
+        run_time = '48:00:00',
+        job_name = 'g1000',
+        memory = '100G',
         cores = '2',
         input_file = os.path.join(input_data_dir,"{sample_id}"), #For PIVUS
         #input_file = "{sample_id}", #For DGN
