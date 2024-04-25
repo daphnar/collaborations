@@ -3,7 +3,7 @@ import os
 os.environ['OAK_BASE']='/oak/stanford/groups/pritch'
 output_base_folder = os.path.join(os.environ['OAK_BASE'],'users/daphna/rdna/analyses/nanopore/pipeline/AxonSoma28s/')
 nuc_path = '/home/users/daphna/analyses/nanopore/pipeline/AxonSoma28s/%s/haplotypes/mouse_28s/rRNA.mouse_28s_chunk_0.haplotypes.nuc.csv'
-interesting_threshold_change = 0.01
+
 samples = ['m64283e_240201_004140.SomaGFP--SomaGFP','m64283e_240201_004140.AxonGFP--AxonGFP',
            'm64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.SomaTDP--SomaTDP',\
            'm64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaNone--SomaNone']
@@ -51,14 +51,6 @@ pre_calculated_variants_alt=pd.DataFrame(index=[187, 601, 651, 762, 882, 961, 11
 4482],columns=['alt_nuc','m64283e_240201_004140.SomaGFP--SomaGFP','m64283e_240201_004140.AxonGFP--AxonGFP',
            'm64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.SomaTDP--SomaTDP',\
            'm64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaNone--SomaNone'])
-
-# conditions=[['m64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaGFP--SomaGFP'],
-#             ['m64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaNone--SomaNone'],
-#             ['m64283e_240201_004140.SomaTDP--SomaTDP','m64283e_240201_004140.SomaGFP--SomaGFP'],
-#             ['m64283e_240201_004140.SomaTDP--SomaTDP','m64283e_240201_004140.SomaNone--SomaNone'],
-#             ['m64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.AxonGFP--AxonGFP'],
-#             ['m64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.SomaTDP--SomaTDP'],
-#             ['m64283e_240201_004140.AxonGFP--AxonGFP','m64283e_240201_004140.SomaGFP--SomaGFP']]
 #interesting_variants = {}
 # variants_with_at_least_5_percent = []
 # for condition_pair in conditions:
@@ -88,5 +80,47 @@ for sample in samples:
 
 pre_calculated_variants_leading.to_csv('/home/users/daphna/analyses/nanopore/pipeline/AxonSoma28s/leading_variant_changes.csv')
 pre_calculated_variants_alt.to_csv('/home/users/daphna/analyses/nanopore/pipeline/AxonSoma28s/alt_variant_changes.csv')
+
+
+conditions=[['m64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaGFP--SomaGFP'],
+            ['m64283e_240201_004140.SomaPR--SomaPR','m64283e_240201_004140.SomaNone--SomaNone'],
+            ['m64283e_240201_004140.SomaTDP--SomaTDP','m64283e_240201_004140.SomaGFP--SomaGFP'],
+            ['m64283e_240201_004140.SomaTDP--SomaTDP','m64283e_240201_004140.SomaNone--SomaNone'],
+            ['m64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.AxonGFP--AxonGFP'],
+            ['m64283e_240201_004140.AxonTDP--AxonTDP','m64283e_240201_004140.SomaTDP--SomaTDP'],
+            ['m64283e_240201_004140.AxonGFP--AxonGFP','m64283e_240201_004140.SomaGFP--SomaGFP']]
+
+interesting_threshold_change = 0.05
+for condition_pair in conditions:
+    for position in pre_calculated_variants:
+        diff = pre_calculated_variants_leading.loc[position,condition_pair[0]]- \
+            pre_calculated_variants_leading.loc[position, condition_pair[1]]
+        if abs(diff)>interesting_threshold_change:
+            print(position,diff,condition_pair)
+
+
+for condition_pair in conditions:
+    for position in [1895]:
+        diff = pre_calculated_variants_leading.loc[position,condition_pair[0]]- \
+            pre_calculated_variants_leading.loc[position, condition_pair[1]]
+        print(position,diff,condition_pair)
+
+
+for condition_pair in conditions:
+    for position in [1895]:
+        diff = pre_calculated_variants_alt.loc[position,condition_pair[0]]- \
+            pre_calculated_variants_alt.loc[position, condition_pair[1]]
+        print(position,diff,condition_pair)
+
+
+
+for condition_pair in conditions:
+    for position in [1512]:
+        diff = pre_calculated_variants_alt.loc[position,condition_pair[0]]- \
+            pre_calculated_variants_alt.loc[position, condition_pair[1]]
+        print(position,diff,condition_pair)
+
+#result: 1891-1895 : ['m64283e_240201_004140.SomaTDP--SomaTDP', 'm64283e_240201_004140.SomaGFP--SomaGFP']
+#result 2822 : ['m64283e_240201_004140.SomaTDP--SomaTDP', 'm64283e_240201_004140.SomaGFP--SomaGFP']
 
 
